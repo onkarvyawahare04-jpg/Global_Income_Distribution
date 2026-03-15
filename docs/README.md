@@ -39,6 +39,7 @@
 | **Microsoft Power BI** | Used for initial data modeling, prototype visualization, and defining analytical KPIs. |
 | **Microsoft Excel** | Primary tool for historical data storage, dataset cleaning, and final report generation. |
 | **SQLite / SQLAlchemy** | Provides a robust relational database layer for user data, analytics, and feedback. |
+| **Beekeeper Studio** | Visual database browser (like Prisma Studio) used to inspect and manage the SQLite database live. |
 | **Visual Studio Code** | The primary integrated development environment (IDE) for the platform's codebase. |
 
 ### Programming Languages
@@ -58,6 +59,7 @@
 - **Frontend Framework**: Bootstrap 5
 - **Visual Libraries**: Chart.js, Leaflet.js
 - **Animations**: AOS (Animate On Scroll)
+- **Database GUI**: Beekeeper Studio (SQLite live viewer)
 
 ---
 
