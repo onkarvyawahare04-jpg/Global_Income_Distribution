@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "functions": {
+    "index.py": {
+      "runtime": "@vercel/python"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/static/(.*)",
+      "destination": "/frontend/static/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.py"
+    }
+  ]
+}

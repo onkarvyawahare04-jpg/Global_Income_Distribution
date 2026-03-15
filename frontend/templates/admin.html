@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel - GIDA Dashboard{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4" data-aos="fade-down">
+        <div>
+            <div class="section-badge">🛡️ Admin Panel</div>
+            <h2 class="section-title mb-1">Platform Analytics</h2>
+            <p class="mb-0" style="color: var(--text-secondary);">Performance and user engagement metrics at a glance.
+            </p>
+        </div>
+        <span class="badge-status badge-live d-none d-md-inline-block">
+            <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i>System Stable
+        </span>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3 col-6" data-aos="fade-up" data-aos-delay="0">
+            <div class="stat-card gold">
+                <div class="stat-icon gold"><i class="bi bi-eye-fill"></i></div>
+                <div class="stat-value" data-count="{{ total_visits }}">0</div>
+                <div class="stat-label">Total Visits</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="stat-card blue">
+                <div class="stat-icon blue"><i class="bi bi-calendar-check"></i></div>
+                <div class="stat-value"><span id="visitCount" data-count="{{ today_visits }}">{{ today_visits }}</span>
+                </div>
+                <div class="stat-label d-flex align-items-center gap-2">
+                    Visits on:
+                    <input type="date" id="visitDatePicker" class="bg-transparent border-0 text-white small"
+                        value="{{ today_date }}" style="outline: none; cursor: pointer; color-scheme: dark;">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="stat-card emerald">
+                <div class="stat-icon emerald"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-value" data-count="{{ total_users }}">0</div>
+                <div class="stat-label">Registered Users</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="stat-card rose">
+                <div class="stat-icon rose"><i class="bi bi-chat-dots-fill"></i></div>
+                <div class="stat-value" data-count="{{ feedbacks|length }}">0</div>
+                <div class="stat-label">Feedback Msgs</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts & Intelligence Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8" data-aos="fade-up">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-graph-up me-2 text-warning"></i>User Growth Overview</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-light opacity-75 small">Month:</span>
+                        <input type="month" id="growthMonthPicker" class="bg-transparent border-0 text-white small"
+                            value="{{ today_date[:7] }}" style="outline: none; cursor: pointer; color-scheme: dark;">
+                    </div>
+                </div>
+                <canvas id="userChart" height="220"></canvas>
+            </div>
+        </div>
+        <!-- Creative Intelligence Section -->
+        <div class="col-lg-4" data-aos="fade-left">
+            <div class="glass-card p-4 h-100 position-relative overflow-hidden" style="border: 1px solid rgba(245, 158, 11, 0.2) !important;">
+                <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                    <i class="bi bi-cpu display-1" style="color: var(--accent-gold);"></i>
+                </div>
+                <h5 class="fw-bold mb-4"><i class="bi bi-lightbulb-fill me-2 text-gold"></i>Growth Intelligence</h5>
+                
+                <!-- Velocity Meter -->
+                <div class="mb-5">
+                    <div class="d-flex justify-content-between align-items-end mb-2">
+                        <span class="small fw-semibold text-light opacity-75">Aquisiton Velocity</span>
+                        <span class="badge bg-gold bg-opacity-10 text-gold" id="velocityText">+{{ velocity }}%</span>
+                    </div>
+                    <div class="progress bg-dark bg-opacity-50" style="height: 10px; border-radius: 5px;">
+                        <div class="progress-bar bg-gold animate-glow" role="progressbar" id="velocityBar"
+                             style="width: {{ [velocity * 5, 100]|min }}%; border-radius: 5px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);"></div>
+                    </div>
+                    <p class="small text-secondary mt-2 mb-0">Platform expanding at a healthy rate relative to baseline.</p>
+                </div>
+
+                <!-- Sentiment Pulse -->
+                <div class="mb-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="small fw-semibold text-light opacity-75">Community Sentiment</span>
+                        <div class="text-warning small">
+                            <span id="sentimentRating">{{ avg_rating }}</span> <i class="bi bi-star-fill ms-1"></i>
+                        </div>
+                    </div>
+                    <div class="glass-card p-3 bg-opacity-10 d-flex align-items-center gap-3">
+                        <div class="pulse-ring gold"></div>
+                        <div class="small fw-medium" id="sentimentLabel">
+                            {% if avg_rating >= 4.5 %}
+                            Exceptional Satisfaction
+                            {% elif avg_rating >= 3.5 %}
+                            Positive Engagement
+                            {% else %}
+                            Analyzing Feedback Trends
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milestone Tracker -->
+                <div class="mt-auto">
+                    <h6 class="small fw-bold text-secondary text-uppercase mb-3">Engagement Milestone</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon emerald shadow-sm" style="width: 40px; height: 40px; font-size: 1rem;">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold"><span id="milestoneCount">{{ new_users_month }}</span> New Users</div>
+                             <div class="small text-secondary" id="milestoneLabel">Aquired this month</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            <div class="glass-card overflow-hidden" style="border-radius: var(--radius-xl);">
+                <div class="d-flex justify-content-between align-items-center px-4 py-3"
+                    style="background: rgba(17,24,39,0.6); border-bottom: 1px solid var(--glass-border);">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-people-fill me-2 text-info"></i>Registered Users</h5>
+                    <span class="badge rounded-pill"
+                        style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">
+                        {{ users|length }} total
+                    </span>
+                </div>
+                <div class="table-responsive" style="max-height: 350px;">
+                    <table class="table table-glass mb-0">
+                        <thead style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th class="text-secondary small text-uppercase">Joined</th>
+                                <th class="text-secondary small text-uppercase">Username</th>
+                                <th class="text-secondary small text-uppercase">Email</th>
+                                <th class="text-secondary small text-uppercase text-end">Status & Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td style="color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap;">
+                                    <i class="bi bi-calendar3 me-1"></i>{{ u.created_at.strftime('%b %d, %Y') if
+                                    u.created_at else 'N/A' }}
+                                </td>
+                                <td class="fw-semibold text-white">{{ u.username }}</td>
+                                <td style="color: var(--accent-cyan);">{{ u.email }}</td>
+                                <td class="text-end">
+                                    {% if u.email != 'admin@gida.com' %}
+                                    <div class="d-flex align-items-center justify-content-end gap-2">
+                                        {% if u.is_banned %}
+                                        <span
+                                            class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill"><i
+                                                class="bi bi-slash-circle me-1"></i>Banned</span>
+                                        <form action="{{ url_for('toggle_ban', user_id=u.id) }}" method="POST"
+                                            class="m-0 p-0">
+                                            <button type="submit"
+                                                class="btn btn-sm btn-outline-success py-0 px-2 rounded-pill"
+                                                title="Unban User">
+                                                Unban
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span
+                                            class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill"><i
+                                                class="bi bi-check-circle me-1"></i>Active</span>
+                                        <form action="{{ url_for('toggle_ban', user_id=u.id) }}" method="POST"
+                                            class="m-0 p-0">
+                                            <button type="submit"
+                                                class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill"
+                                                title="Ban User"
+                                                onclick="return confirm('Are you sure you want to ban {{ u.username }}?');">
+                                                Ban
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                    {% else %}
+                                    <span
+                                        class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill"><i
+                                            class="bi bi-shield-lock me-1"></i>Admin</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5" style="color: var(--text-muted);">
+                                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                    <p class="mt-2 mb-0">No users registered yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Table -->
+    <div class="glass-card overflow-hidden" data-aos="fade-up" style="border-radius: var(--radius-xl);">
+        <div class="d-flex justify-content-between align-items-center px-4 py-3"
+            style="background: rgba(17,24,39,0.6); border-bottom: 1px solid var(--glass-border);">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-inbox-fill me-2 text-warning"></i>Recent Feedback</h5>
+            <span class="badge rounded-pill" style="background: rgba(245,158,11,0.15); color: var(--accent-gold);">
+                {{ feedbacks|length }} total
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-glass mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-secondary small text-uppercase">Date</th>
+                        <th class="text-secondary small text-uppercase">Name</th>
+                        <th class="text-secondary small text-uppercase">Email</th>
+                        <th class="text-secondary small text-uppercase">Rating</th>
+                        <th class="text-secondary small text-uppercase">Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fb in feedbacks %}
+                    <tr>
+                        <td style="color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap;">
+                            <i class="bi bi-clock me-1"></i>{{ fb.submitted_at.strftime('%b %d, %Y %H:%M') }}
+                        </td>
+                        <td class="fw-semibold text-white">{{ fb.name }}</td>
+                        <td style="color: var(--accent-cyan);">{{ fb.email }}</td>
+                        <td>
+                            <div class="text-warning">
+                                {% for i in range(fb.rating or 5) %}
+                                <i class="bi bi-star-fill small"></i>
+                                {% endfor %}
+                                {% for i in range(5 - (fb.rating or 5)) %}
+                                <i class="bi bi-star small text-muted opacity-50"></i>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td style="color: var(--text-secondary); font-size: 0.9rem; max-width: 350px;">{{ fb.message }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5" style="color: var(--text-muted);">
+                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                            <p class="mt-2 mb-0">No feedback received yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Chart data from Flask
+    // noinspection JSAnnotator
+    var totalUsers = parseInt("{{ total_users }}", 10) || 0;
+
+    // User Growth Chart (Line)
+    let userChart;
+    const growthMonthPicker = document.getElementById('growthMonthPicker');
+
+    function updateGrowthChart(monthStr) {
+        fetch(`/api/admin/user-growth?month=${monthStr}`)
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('userChart').getContext('2d');
+
+                // Update Milestone Section
+                const milestoneCount = document.getElementById('milestoneCount');
+                const milestoneLabel = document.getElementById('milestoneLabel');
+                if (milestoneCount && milestoneLabel) {
+                    const totalForMonth = data.data.reduce((a, b) => a + b, 0);
+                    milestoneCount.textContent = totalForMonth;
+                    
+                    // Update Velocity Meter
+                    const velocityText = document.getElementById('velocityText');
+                    const velocityBar = document.getElementById('velocityBar');
+                    if (velocityText && velocityBar) {
+                        const calculatedVelocity = totalForMonth > 0 ? ((totalForMonth / data.total_users_system) * 100).toFixed(1) : "0.0";
+                        velocityText.textContent = `+${calculatedVelocity}%`;
+                        velocityBar.style.width = Math.min(calculatedVelocity * 5, 100) + "%";
+                    }
+
+                    // Update Community Sentiment
+                    const sentimentRating = document.getElementById('sentimentRating');
+                    const sentimentLabel = document.getElementById('sentimentLabel');
+                    if (sentimentRating && sentimentLabel) {
+                        const rating = data.avg_rating;
+                        sentimentRating.textContent = rating;
+                        if (rating >= 4.5) sentimentLabel.textContent = "Exceptional Satisfaction";
+                        else if (rating >= 3.5) sentimentLabel.textContent = "Positive Engagement";
+                        else if (rating > 0) sentimentLabel.textContent = "Analyzing Feedback Trends";
+                        else sentimentLabel.textContent = "No feedback this month";
+                    }
+
+                    // Format month name for label
+                    const [year, month] = monthStr.split('-');
+                    const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
+                    milestoneLabel.textContent = `Aquired in ${monthName} ${year}`;
+                }
+
+                if (userChart) {
+                    userChart.data.labels = data.labels;
+                    userChart.data.datasets[0].data = data.data;
+                    userChart.update();
+                } else {
+                    userChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'New Registrations',
+                                data: data.data,
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#f59e0b',
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#64748b' },
+                                    title: { display: true, text: 'Day of Month', color: '#64748b' }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: 'rgba(255,255,255,0.05)' },
+                                    ticks: { color: '#64748b', stepSize: 1 }
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching growth data:', error));
+    }
+
+    // Initialize with current month
+    if (growthMonthPicker) {
+        updateGrowthChart(growthMonthPicker.value);
+        growthMonthPicker.addEventListener('change', function () {
+            updateGrowthChart(this.value);
+        });
+    }
+
+    // Update Visitor Count by Date
+    const visitDatePicker = document.getElementById('visitDatePicker');
+    const visitCountSpan = document.getElementById('visitCount');
+
+    if (visitDatePicker && visitCountSpan) {
+        visitDatePicker.addEventListener('change', function () {
+            const selectedDate = this.value;
+            fetch(`/api/admin/visits?date=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.count !== undefined) {
+                        visitCountSpan.textContent = data.count;
+                        visitCountSpan.setAttribute('data-count', data.count);
+                    }
+                })
+                .catch(error => console.error('Error fetching visits:', error));
+        });
+    }
+</script>
+{% endblock %}
