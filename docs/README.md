@@ -1,6 +1,8 @@
 # GIDA: Global Income Distribution Analytics
 
-## 🌐 Website Information
+## 🌐 Live Demo
+**[👉 https://onkarvyawahare04.pythonanywhere.com/](https://onkarvyawahare04.pythonanywhere.com/)**
+
 **GIDA (Global Income Distribution Analytics)** is a sophisticated intelligence platform designed to decode the complexities of wealth distribution and economic disparity. By leveraging authoritative data from global financial institutions, GIDA transforms raw indicators into high-impact visual narratives. The platform empowers researchers, policy-makers, and analysts to explore the intricate relationships between economic growth and societal prosperity across the globe.
 
 ---
@@ -62,26 +64,31 @@
 ## 📂 Project Structure
 
 ```text
-├── app.py                      # Core Backend Logic & API Endpoints
-├── Global Income Distribution Dataset.xlsx    # Global Dataset Repository
-├── requirements.txt            # System Dependencies
+├── backend/
+│   ├── app.py                      # Core Backend Logic & API Endpoints
+│   └── requirements.txt            # System Dependencies
+├── frontend/
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── dashboard_native.css # Premium Glassmorphism Theme
+│   │   └── js/
+│   │       └── dashboard_logic.js   # Chart.js & Map Visual Implementations
+│   └── templates/
+│       ├── base.html               # Master Layout & Professional Navbar
+│       ├── home.html               # High-Impact Landing Page
+│       ├── about.html              # Project Methodology & Objectives
+│       ├── dashboard.html          # Core Analytics Interface
+│       ├── admin.html              # Administrator Intelligence Dashboard
+│       ├── feedback.html           # User Insight & Rating Gateway
+│       └── login.html              # Security Gateway
+├── dataset/
+│   └── Global Income Distribution Dataset.xlsx  # Global Dataset Repository
 ├── instance/
-│   └── database.db             # Relational Database (Users, Visits, Feedback)
-├── static/
-│   ├── css/
-│   │   └── dashboard_native.css # Premium Glassmorphism Theme
-│   ├── js/
-│   │   └── dashboard_logic.js   # Chart.js & Map Visual Implementations
-├── templates/
-│   ├── base.html               # Master Layout & Professional Navbar
-│   ├── home.html               # High-Impact Landing Page
-│   ├── about.html              # Project Methodology & Objectives
-│   ├── dashboard.html          # Core Analytics Interface
-│   ├── admin.html              # Administrator Intelligence Dashboard
-│   ├── feedback.html           # User Insight & Rating Gateway
-│   ├── login.html              # Security Gateway
-│   └── register.html           # User Enrollment Portal
-└── reports/                    # Repository for Generated PDF/Excel Reports
+│   └── database.db                 # Relational Database (Users, Visits, Feedback)
+├── scripts/                        # Utility & Data Processing Scripts
+├── docs/                           # Documentation & Reports
+└── api/
+    └── index.py                    # Deployment Entry Point
 ```
 
 ---
@@ -95,8 +102,8 @@
 ### 2. Setup Procedure
 1. **Clone Repository**:
    ```bash
-   git clone <repository-url>
-   cd gida-analytics
+   git clone https://github.com/onkarvyawahare04-jpg/Global_Income_Distribution.git
+   cd Global_Income_Distribution
    ```
 2. **Install Dependencies**:
    ```bash
@@ -104,7 +111,7 @@
    ```
 3. **Initialize Application**:
    ```bash
-   python app.py
+   python backend/app.py
    ```
 4. **Access Platform**:
    Navigate to `http://127.0.0.1:5000` in your browser.
