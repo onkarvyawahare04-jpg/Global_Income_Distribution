@@ -23,6 +23,20 @@ app = Flask(__name__,
             static_folder=os.path.join(project_root, 'frontend', 'static'),
             instance_path=os.path.join(project_root, 'instance'))
 
+# Import Chatbot
+from chatbot import chatbot
+
+@app.route('/api/chat', methods=['POST'])
+@login_required
+def chat():
+    """Chatbot API endpoint."""
+    user_query = request.json.get('query', '')
+    if not user_query:
+        return jsonify({"response": "Please ask me something!"})
+    
+    response = chatbot.get_response(user_query)
+    return jsonify({"response": response})
+
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///database.db').replace("postgres://", "postgresql://")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -50,13 +64,20 @@ class Visitor(db.Model):
     visitor_count = db.Column(db.Integer, default=1)
 
 class Feedback(db.Model):
-    """Feedback table for storing user feedback."""
+    """Feedback table for storing user feedback and admin communication."""
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    category = db.Column(db.String(50), default='General Feedback')
     message = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, default=5)
+    status = db.Column(db.String(20), default='Pending') # Pending, Reviewed, Implemented
+    admin_response = db.Column(db.Text, nullable=True)
+    is_read_by_user = db.Column(db.Boolean, default=False)
     submitted_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    user = db.relationship('User', backref='feedbacks')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -82,8 +103,6 @@ def track_visitor():
 def home():
     """Home page route."""
     track_visitor()
-    if current_user.is_authenticated and current_user.email == 'admin@gida.com':
-        return redirect(url_for('admin'))
     return render_template('home.html')
 
 @app.route('/about')
@@ -158,8 +177,6 @@ def logout():
 @login_required
 def dashboard():
     """Native Web Dashboard."""
-    if current_user.email == 'admin@gida.com':
-        return redirect(url_for('admin'))
     return render_template('dashboard.html')
 
 @app.route('/api/dashboard-data')
@@ -308,20 +325,66 @@ def country_comparison():
 @app.route('/feedback', methods=['GET', 'POST'])
 @login_required
 def feedback():
-    """Feedback form page."""
+    """Feedback form page with history."""
     if current_user.email == 'admin@gida.com':
         return redirect(url_for('admin'))
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
+        category = request.form.get('category', 'General Feedback')
         message = request.form.get('message')
         rating = request.form.get('rating', 5, type=int)
-        new_feedback = Feedback(name=name, email=email, message=message, rating=rating)
+        new_feedback = Feedback(
+            user_id=current_user.id,
+            name=current_user.username,
+            email=current_user.email,
+            category=category,
+            message=message,
+            rating=rating
+        )
         db.session.add(new_feedback)
         db.session.commit()
-        flash('Thank you for your feedback!', 'success')
-        return redirect(url_for('home'))
-    return render_template('feedback.html')
+        flash('Thank you for your feedback! We will review it soon.', 'success')
+        return redirect(url_for('feedback'))
+    
+    # Get user feedback history
+    history = Feedback.query.filter_by(user_id=current_user.id).order_by(Feedback.submitted_at.desc()).all()
+    
+    # Mark responses as read when user views the feedback page
+    unread = Feedback.query.filter_by(user_id=current_user.id, is_read_by_user=False).filter(Feedback.admin_response.isnot(None)).all()
+    for f in unread:
+        f.is_read_by_user = True
+    if unread:
+        db.session.commit()
+        
+    return render_template('feedback.html', history=history)
+
+@app.route('/api/user/notifications')
+@login_required
+def user_notifications():
+    """Get count of unread admin responses for the current user."""
+    count = Feedback.query.filter_by(user_id=current_user.id, is_read_by_user=False).filter(Feedback.admin_response.isnot(None)).count()
+    return jsonify({"unread_count": count})
+
+@app.route('/admin/feedback/reply/<int:feedback_id>', methods=['POST'])
+@login_required
+def admin_reply(feedback_id):
+    """Admin endpoint to reply to feedback and update status."""
+    if current_user.email != 'admin@gida.com':
+        return jsonify({"error": "Unauthorized"}), 403
+        
+    f = Feedback.query.get_or_404(feedback_id)
+    response = request.form.get('response')
+    status = request.form.get('status')
+    
+    if response:
+        f.admin_response = response
+        f.is_read_by_user = False # Trigger new notification for user
+    
+    if status:
+        f.status = status
+        
+    db.session.commit()
+    flash('Reply sent and status updated successfully.', 'success')
+    return redirect(url_for('admin'))
 
 @app.route('/api/admin/visits')
 @login_required
@@ -476,8 +539,6 @@ def toggle_ban(user_id):
 @login_required
 def download_report():
     """Generate and download Excel report."""
-    if current_user.email == 'admin@gida.com':
-        return redirect(url_for('admin'))
     # Ensure we use the absolute path to point exactly to the correct file
     base_dir = os.path.abspath(os.path.dirname(__file__))
     excel_path = os.path.join(base_dir, '..', 'dataset', 'Global Income Distribution Dataset.xlsx')
@@ -514,16 +575,26 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         
-        # Manual migration to add 'rating' column if it doesn't exist
+        # Manual migration to add new columns to feedback table
         try:
             from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE feedback ADD COLUMN rating INTEGER DEFAULT 5"))
-            db.session.commit()
-            print("Successfully added 'rating' column to feedback table.")
+            columns = [
+                ("user_id", "INTEGER REFERENCES user(id)"),
+                ("category", "VARCHAR(50) DEFAULT 'General Feedback'"),
+                ("status", "VARCHAR(20) DEFAULT 'Pending'"),
+                ("admin_response", "TEXT"),
+                ("is_read_by_user", "BOOLEAN DEFAULT 0"),
+                ("rating", "INTEGER DEFAULT 5")
+            ]
+            for col_name, col_type in columns:
+                try:
+                    db.session.execute(text(f"ALTER TABLE feedback ADD COLUMN {col_name} {col_type}"))
+                    db.session.commit()
+                    print(f"Successfully added '{col_name}' column to feedback table.")
+                except Exception:
+                    db.session.rollback() # Column likely exists
         except Exception as e:
-            # Column likely already exists
-            db.session.rollback()
-            print(f"Rating column might already exist or error occurred: {e}")
+            print(f"Migration error: {e}")
 
         # Update existing usernames to match email prefixes
         try:

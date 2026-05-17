@@ -45,21 +45,28 @@
 ### Programming Languages
 | Language | Implementation Role |
 | :--- | :--- |
-| **Python** | **Backend Logic**: Routing (Flask), Data Analysis (Pandas), Database ORM, and Report Generation (OpenPyXL). |
-| **HTML5** | **Structure**: Defining the semantic architecture of all platform templates and landing pages. |
-| **CSS3** | **Aesthetics**: Implementing the premium glassmorphism theme, responsiveness, and gold-accented styling. |
-| **JavaScript** | **Interactivity**: Powering real-time charts (Chart.js), maps (Leaflet), animations (AOS), and dynamic API calls. |
+| **Python** | **Backend Intelligence**: Powering server-side logic (Flask), data analysis (Pandas), and report generation. |
+| **HTML5** | **Semantic Structure**: Defining the architecture of all platform templates and user interfaces. |
+| **CSS3** | **Visual Design**: Implementing premium glassmorphism, responsive grids, and sophisticated animations. |
+| **JavaScript** | **Client-Side Interactivity**: Powering real-time charts, interactive maps, and dynamic UI transitions. |
+| **SQL** | **Data Management**: Relational queries managed through SQLite and SQLAlchemy ORM. |
+| **Jinja2** | **Template Infrastructure**: Enabling dynamic content injection and modular frontend components. |
+| **Markdown** | **Documentation**: Crafting comprehensive technical guides and project repositories. |
 
 ---
 
 ## 🏗 Technology Stack
 - **Web Framework**: Flask (Python 3.x)
-- **Security**: Flask-Login, Werkzeug (PBKDF2 Hashing)
-- **Data Engine**: Pandas, NumPy
-- **Frontend Framework**: Bootstrap 5
-- **Visual Libraries**: Chart.js, Leaflet.js
+- **Security & Auth**: Flask-Login, Werkzeug (PBKDF2 Password Hashing)
+- **Database Layer**: SQLite with SQLAlchemy ORM
+- **Frontend Core**: HTML5, CSS3, JavaScript (ES6+), Jinja2
+- **UI Frameworks**: Bootstrap 5, Bootstrap Icons
+- **Visual Intelligence**: Chart.js (Analytics), Leaflet.js (Geospatial Mapping)
 - **Animations**: AOS (Animate On Scroll)
-- **Database GUI**: Beekeeper Studio (SQLite live viewer)
+- **Data Engineering**: Pandas, NumPy
+- **Reporting Engine**: OpenPyXL (Excel Generation)
+- **Deployment**: PythonAnywhere
+- **Database Tools**: Beekeeper Studio (Live SQLite Browser)
 
 ---
 

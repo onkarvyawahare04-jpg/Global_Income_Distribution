@@ -1,6 +1,7 @@
 /* Custom Dashboard Native Styles */
 
-:root, [data-theme="dark"] {
+:root {
+    /* Default Dark Mode */
     --dash-bg: #1e293b; 
     --dash-card-bg: rgba(30, 41, 59, 0.8);
     --dash-border: #334155;
@@ -11,6 +12,7 @@
     --dash-accent-green: #10b981;
     --dash-accent-red: #ef4444;
 }
+
 body {
     background-color: var(--dash-bg) !important;
 }

@@ -11,15 +11,17 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_native.css') }}">
 {% endblock %}
 
+
 {% block content %}
 <div class="container-fluid px-4 py-3" style="background-color: var(--dash-bg); min-height: 100vh;">
+
 
     <!-- 1. How to Use GIDA Dashboard Section -->
     <div class="row mb-5" data-aos="fade-down">
         <div class="col-12">
-            <div class="glass-card p-4 h-100 overflow-hidden" style="border-left: 5px solid var(--dash-accent-blue); background: rgba(15, 23, 42, 0.4);">
+            <div class="glass-card p-4 h-100 overflow-hidden" style="border-left: 5px solid var(--dash-accent-blue);">
                 <div class="d-flex align-items-center mb-3">
-                    <div class="section-icon-bg me-3" style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 12px;">
+                    <div class="section-icon-bg me-3" style="background: rgba(var(--accent-blue-rgb, 59, 130, 246), 0.1); padding: 12px; border-radius: 12px;">
                         <i class="bi bi-lightbulb-fill fs-3" style="color: var(--dash-accent-blue);"></i>
                     </div>
                     <div>
@@ -32,7 +34,7 @@
                         <div class="d-flex gap-3">
                             <span class="badge rounded-pill bg-primary fs-6 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">1</span>
                             <div>
-                                <h6 class="text-white mb-1">Filter Observations</h6>
+                                <h6 class="text-primary-theme mb-1" style="color: var(--text-primary);">Filter Observations</h6>
                                 <p class="extra-small text-muted mb-0">Use the <strong>Year</strong>, <strong>Continent</strong>, and <strong>Country</strong> slicers to isolate specific data subsets.</p>
                             </div>
                         </div>
@@ -41,7 +43,7 @@
                         <div class="d-flex gap-3">
                             <span class="badge rounded-pill bg-warning text-dark fs-6 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">2</span>
                             <div>
-                                <h6 class="text-white mb-1">Analyze Key Metrics</h6>
+                                <h6 class="text-primary-theme mb-1" style="color: var(--text-primary);">Analyze Key Metrics</h6>
                                 <p class="extra-small text-muted mb-0">Observe the <strong>KPI Cards</strong> for immediate insights into Gini Index and GDP Per Capita changes.</p>
                             </div>
                         </div>
@@ -50,7 +52,7 @@
                         <div class="d-flex gap-3">
                             <span class="badge rounded-pill bg-info text-dark fs-6 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">3</span>
                             <div>
-                                <h6 class="text-white mb-1">Deep Dive Insights</h6>
+                                <h6 class="text-primary-theme mb-1" style="color: var(--text-primary);">Deep Dive Insights</h6>
                                 <p class="extra-small text-muted mb-0">Scroll to explore <strong>Choropleth Maps</strong> and <strong>Line Trends</strong> to understand wealth polarization over time.</p>
                             </div>
                         </div>
@@ -447,78 +449,7 @@
         </div>
     </div>
 
-    <!-- Feedback Section -->
-    <div class="mt-5 pb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8" data-aos="fade-up">
-                <div class="chart-card p-4 p-md-5" style="border-top: 4px solid var(--dash-text-gold);">
-                    <div class="text-center mb-4">
-                        <div class="section-icon-bg mx-auto mb-3 d-flex align-items-center justify-content-center"
-                            style="width: 60px; height: 60px; background: rgba(251, 191, 36, 0.1); border-radius: 50%;">
-                            <i class="bi bi-chat-square-heart-fill"
-                                style="font-size: 1.5rem; color: var(--dash-text-gold);"></i>
-                        </div>
-                        <h3 class="dash-header-title mb-2" style="font-size: 1.6rem;">Share Your Feedback</h3>
-                        <p class="text-secondary small">Your insights help us improve the Global Income Distribution
-                            Dashboard.</p>
-                    </div>
-
-                    <form action="{{ url_for('feedback') }}" method="POST">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="slicer-label mb-2"><i class="bi bi-person me-1"></i>Full Name</label>
-                                    <input type="text" name="name" class="slicer-select border-opacity-25"
-                                        placeholder="Enter your name" required style="background: rgba(15,23,42,0.4);">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="slicer-label mb-2"><i class="bi bi-envelope me-1"></i>Email
-                                        Address</label>
-                                    <input type="email" name="email" class="slicer-select border-opacity-25"
-                                        placeholder="name@example.com" required style="background: rgba(15,23,42,0.4);">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label class="slicer-label mb-2"><i class="bi bi-star me-1"></i>Overall
-                                        Rating</label>
-                                    <div class="star-rating" style="justify-content: flex-end;">
-                                        <input type="radio" id="dash-star5" name="rating" value="5" checked /><label
-                                            for="dash-star5" title="5 stars"></label>
-                                        <input type="radio" id="dash-star4" name="rating" value="4" /><label
-                                            for="dash-star4" title="4 stars"></label>
-                                        <input type="radio" id="dash-star3" name="rating" value="3" /><label
-                                            for="dash-star3" title="3 stars"></label>
-                                        <input type="radio" id="dash-star2" name="rating" value="2" /><label
-                                            for="dash-star2" title="2 stars"></label>
-                                        <input type="radio" id="dash-star1" name="rating" value="1" /><label
-                                            for="dash-star1" title="1 star"></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-4">
-                                    <label class="slicer-label mb-2"><i class="bi bi-pencil-square me-1"></i>Your
-                                        Message</label>
-                                    <textarea name="message" class="slicer-select border-opacity-25" rows="4"
-                                        placeholder="Tell us what you think..." required
-                                        style="background: rgba(15,23,42,0.4);"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold"
-                                    style="background: var(--dash-text-gold); border: none; color: #1e293b;">
-                                    <i class="bi bi-send-fill me-2"></i>Submit Feedback
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Note: Feedback section moved to dedicated Feedback page -->
 
 </div>
 

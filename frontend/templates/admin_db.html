@@ -39,7 +39,7 @@
                     {% for u in users %}
                     <tr>
                         <td class="fw-bold text-light opacity-50">{{ u.id }}</td>
-                        <td>{{ u.username }}</td>
+                        <td class="text-white opacity-75">{{ u.username }}</td>
                         <td style="color: var(--accent-cyan);">{{ u.email }}</td>
                         <td style="font-family: monospace; font-size: 0.8rem; color: var(--text-secondary); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
                             title="{{ u.password }}">{{ u.password }}</td>
@@ -79,9 +79,9 @@
                     {% for fb in feedbacks %}
                     <tr>
                         <td class="fw-bold text-light opacity-50">{{ fb.id }}</td>
-                        <td>{{ fb.name }}</td>
+                        <td class="text-white opacity-75">{{ fb.name }}</td>
                         <td style="color: var(--accent-cyan);">{{ fb.email }}</td>
-                        <td>{{ fb.message }}</td>
+                        <td class="text-white opacity-75">{{ fb.message }}</td>
                         <td style="font-size: 0.85rem; color: var(--text-primary);">{{
                             fb.submitted_at.strftime('%Y-%m-%d %H:%M:%S') if fb.submitted_at else 'N/A' }}</td>
                     </tr>
@@ -117,7 +117,7 @@
                     <tr>
                         <td class="fw-bold text-light opacity-50">{{ v.id }}</td>
                         <td style="color: var(--accent-cyan);">{{ v.visit_date }}</td>
-                        <td class="fw-bold">{{ v.visitor_count }}</td>
+                        <td class="fw-bold text-white opacity-75">{{ v.visitor_count }}</td>
                     </tr>
                     {% else %}
                     <tr>

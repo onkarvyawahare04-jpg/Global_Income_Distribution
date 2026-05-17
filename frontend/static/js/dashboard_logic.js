@@ -236,3 +236,4 @@ document.addEventListener('DOMContentLoaded', () => {
         if (firstBtn) firstBtn.classList.add('active');
     }
 });
+
